@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onRefreshClick: () -> Unit) { // Added the click handler here
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,7 +59,7 @@ fun SettingsScreen() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { /* Future: Force reload channels */ },
+                    onClick = onRefreshClick, // Button now triggers the action
                     colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
                 ) {
                     Text("Refresh Channels", color = Color.White)
