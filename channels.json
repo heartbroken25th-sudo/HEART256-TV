@@ -9,34 +9,34 @@
   },
   {
     "name": "NTV Uganda",
-    "url": "https://stream.ntvuganda.co.ug/hls/live.m3u8",
-    "logo": "https://ui-avatars.com/api/?name=NTV&background=blue&color=fff&rounded=true&bold=true",
+    "url": "https://dogus.daioncdn.net/ntv/ntv.m3u8?app=ntv_web",
+    "logo" "https://upload.wikimedia.org/wikipedia/commons/8/89/Logo_of_NTV_Uganda.png",
     "programTitle": "News at 9",
-    "timeRange": "20:00 - 21:00",
+    "timeRange": "LIVE",
     "category": "📰 News"
   },
   {
     "name": "NBS TV",
-    "url": "https://cdn.nbs.ug/hls/live.m3u8",
-    "logo": "https://ui-avatars.com/api/?name=NBS&background=orange&color=fff&rounded=true&bold=true",
+    "url": "https://cdn1.rea.cdn.moderntv.eu/readymedia/stream/NBSTV/10-hls/live-media.m3u8",
+    "logo": "https://i.imgur.com/XCNoTbE.png",
     "programTitle": "Morning Zoo",
-    "timeRange": "06:00 - 10:00",
+    "timeRange": "LIVE",
     "category": "📰 News"
   },
   {
     "name": "Bukedde TV 1",
     "url": "https://stream.hydeinnovations.com/bukedde1flussonic/index.m3u8",
     "logo": "https://i.imgur.com/HFq5QlJ.png",
-    "programTitle": "Agataliiko Nfuufu",
-    "timeRange": "19:00 - 20:00",
+    "programTitle": "Movies & Entertainment",
+    "timeRange": "LIVE",
     "category": "📺 Entertainment"
   },
   {
-    "name": "UBC TV",
-    "url": "https://ubc.ug/live/stream.m3u8",
-    "logo": "https://ui-avatars.com/api/?name=UBC&background=purple&color=fff&rounded=true&bold=true",
-    "programTitle": "National News",
-    "timeRange": "21:00 - 22:00",
+    "name": "Bukedde TV 2",
+    "url": "https://stream.hydeinnovations.com/bukedde2flussonic/index.m3u8",
+    "logo": "https://i.imgur.com/ukwPZeY.png",
+    "programTitle": "Agataliiko Nfuufu",
+    "timeRange": "LIVE",
     "category": "📰 News"
   }
 ]
