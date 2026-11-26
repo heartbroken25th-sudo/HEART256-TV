@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +23,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
@@ -33,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
@@ -49,27 +53,22 @@ class MainActivity : ComponentActivity() {
             MaterialTheme(colorScheme = darkColorScheme()) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     
-                    // 1. Set up the Navigation Controller
                     val navController = rememberNavController()
 
-                    // 2. Define the Routes
                     NavHost(navController = navController, startDestination = "home") {
                         
-                        // The Home Screen (Netflix Grid)
                         composable("home") {
                             MovieGridScreen(
                                 viewModel = viewModel,
                                 onMovieClick = { movieId ->
-                                    // Navigate to details and pass the movie ID
                                     navController.navigate("details/$movieId")
                                 }
                             )
                         }
 
-                        // The Details Screen
                         composable("details/{movieId}") { backStackEntry ->
                             val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
-                            val movie = viewModel.uiState.value.movies.find { it.id == movieId }
+                            val movie = viewModel.uiState.value.allMovies.find { it.id == movieId }
                             
                             if (movie != null) {
                                 DetailsScreen(
@@ -94,11 +93,23 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
         topBar = {
             TopAppBar(
                 title = { 
-                    Text(
-                        text = "Heart256 TV", 
-                        fontWeight = FontWeight.Bold, 
-                        color = Color.Red 
-                    ) 
+                    // Replaced the simple text with a Search Bar
+                    TextField(
+                        value = uiState.searchQuery,
+                        onValueChange = { viewModel.onSearchQueryChange(it) },
+                        placeholder = { Text("Search movies...", color = Color.Gray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Black,
+                            unfocusedContainerColor = Color.Black,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Black
@@ -115,7 +126,8 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(uiState.movies) { movie ->
+            // Notice we are now using uiState.filteredMovies instead of uiState.movies
+            items(uiState.filteredMovies) { movie ->
                 MovieCard(movie = movie, onClick = { onMovieClick(movie.id) })
             }
         }
@@ -128,7 +140,7 @@ fun MovieCard(movie: Movie, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(0.7f)
-            .clickable { onClick() }, // This triggers the navigation!
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
     ) {
         Box(
