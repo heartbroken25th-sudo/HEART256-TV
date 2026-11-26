@@ -24,10 +24,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -45,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
                     Scaffold(
                         bottomBar = {
-                            if (currentRoute == "home" || currentRoute == "live_tv" || currentRoute == "settings") {
+                            if (currentRoute == "home" || currentRoute?.startsWith("live_tv") == true || currentRoute == "settings") {
                                 NavigationBar(containerColor = Color.Black) {
                                     NavigationBarItem(
                                         selected = currentRoute == "home",
@@ -54,10 +56,10 @@ class MainActivity : ComponentActivity() {
                                         label = { Text("Home", color = if (currentRoute == "home") Color.Red else Color.Gray) }
                                     )
                                     NavigationBarItem(
-                                        selected = currentRoute == "live_tv",
-                                        onClick = { navController.navigate("live_tv") { popUpTo("home") { inclusive = true } } },
-                                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Live TV", tint = if (currentRoute == "live_tv") Color.Red else Color.Gray) },
-                                        label = { Text("Live TV", color = if (currentRoute == "live_tv") Color.Red else Color.Gray) }
+                                        selected = currentRoute?.startsWith("live_tv") == true,
+                                        onClick = { navController.navigate("live_tv/All") { popUpTo("home") { inclusive = true } } },
+                                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Live TV", tint = if (currentRoute?.startsWith("live_tv") == true) Color.Red else Color.Gray) },
+                                        label = { Text("Live TV", color = if (currentRoute?.startsWith("live_tv") == true) Color.Red else Color.Gray) }
                                     )
                                     NavigationBarItem(
                                         selected = currentRoute == "settings",
@@ -77,17 +79,25 @@ class MainActivity : ComponentActivity() {
                             composable("home") {
                                 HomeScreen(
                                     onCategoryClick = { category ->
-                                        navController.navigate("live_tv")
+                                        // Navigate to Live TV with the chosen category
+                                        navController.navigate("live_tv/$category")
                                     }
                                 )
                             }
 
-                            composable("live_tv") {
+                            // Accepts a category parameter
+                            composable(
+                                route = "live_tv/{category}",
+                                arguments = listOf(navArgument("category") { type = NavType.StringType })
+                            ) { backStackEntry ->
+                                val category = backStackEntry.arguments?.getString("category") ?: "All"
                                 val uiState by viewModel.uiState.collectAsState()
+                                
                                 LiveTvScreen(
                                     channels = uiState.channels,
                                     isLoading = uiState.isLoading,
                                     error = uiState.error,
+                                    selectedCategory = category, // Pass the category to filter!
                                     onChannelClick = { videoUrl ->
                                         navController.navigate("player/${android.net.Uri.encode(videoUrl)}")
                                     }
