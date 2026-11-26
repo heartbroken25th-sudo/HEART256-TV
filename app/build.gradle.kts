@@ -51,11 +51,11 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("androidx.navigation:navigation-compose:2.8.3")
     
-    // ExoPlayer core
     implementation("androidx.media3:media3-exoplayer:1.4.1")
-    // NEW: HLS and DASH streaming support
     implementation("androidx.media3:media3-exoplayer-hls:1.4.1")
     implementation("androidx.media3:media3-exoplayer-dash:1.4.1")
-    // ExoPlayer UI controls
     implementation("androidx.media3:media3-ui:1.4.1")
+
+    // The DataStore library
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
