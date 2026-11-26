@@ -4,34 +4,39 @@
     "url": "https://livestream.galaxytv.ug/jikonkone/playlist.m3u8",
     "logo": "https://ui-avatars.com/api/?name=JK&background=red&color=fff&rounded=true&bold=true",
     "programTitle": "Latest Local Music & Shows",
-    "timeRange": "LIVE"
+    "timeRange": "LIVE",
+    "category": "🎵 Music"
   },
   {
     "name": "NTV Uganda",
     "url": "https://stream.ntvuganda.co.ug/hls/live.m3u8",
     "logo": "https://ui-avatars.com/api/?name=NTV&background=blue&color=fff&rounded=true&bold=true",
     "programTitle": "News at 9",
-    "timeRange": "20:00 - 21:00"
+    "timeRange": "20:00 - 21:00",
+    "category": "📰 News"
   },
   {
     "name": "NBS TV",
     "url": "https://cdn.nbs.ug/hls/live.m3u8",
     "logo": "https://ui-avatars.com/api/?name=NBS&background=orange&color=fff&rounded=true&bold=true",
     "programTitle": "Morning Zoo",
-    "timeRange": "06:00 - 10:00"
+    "timeRange": "06:00 - 10:00",
+    "category": "📰 News"
   },
   {
     "name": "Bukedde TV",
     "url": "https://stream.bukedde.co.ug/hls/live.m3u8",
     "logo": "https://ui-avatars.com/api/?name=BTV&background=green&color=fff&rounded=true&bold=true",
     "programTitle": "Agataliiko Nfuufu",
-    "timeRange": "19:00 - 20:00"
+    "timeRange": "19:00 - 20:00",
+    "category": "📺 Entertainment"
   },
   {
     "name": "UBC TV",
     "url": "https://ubc.ug/live/stream.m3u8",
     "logo": "https://ui-avatars.com/api/?name=UBC&background=purple&color=fff&rounded=true&bold=true",
     "programTitle": "National News",
-    "timeRange": "21:00 - 22:00"
+    "timeRange": "21:00 - 22:00",
+    "category": "📰 News"
   }
 ]
