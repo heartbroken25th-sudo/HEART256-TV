@@ -19,12 +19,16 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 
@@ -59,37 +64,85 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     
                     val navController = rememberNavController()
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
 
-                    NavHost(navController = navController, startDestination = "home") {
-                        
-                        composable("home") {
-                            MovieGridScreen(
-                                viewModel = viewModel,
-                                onMovieClick = { movieId ->
-                                    navController.navigate("details/$movieId")
+                    Scaffold(
+                        bottomBar = {
+                            // Only show the bottom bar on the main screens
+                            if (currentRoute == "movies" || currentRoute == "live_tv") {
+                                NavigationBar(containerColor = Color.Black) {
+                                    NavigationBarItem(
+                                        selected = currentRoute == "movies",
+                                        onClick = { 
+                                            navController.navigate("movies") {
+                                                popUpTo("movies") { inclusive = true }
+                                            }
+                                        },
+                                        icon = { Icon(Icons.Default.Home, contentDescription = "Movies", tint = if (currentRoute == "movies") Color.Red else Color.Gray) },
+                                        label = { Text("Movies", color = if (currentRoute == "movies") Color.Red else Color.Gray) }
+                                    )
+                                    NavigationBarItem(
+                                        selected = currentRoute == "live_tv",
+                                        onClick = { 
+                                            navController.navigate("live_tv") {
+                                                popUpTo("movies") { inclusive = true }
+                                            }
+                                        },
+                                        icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Live TV", tint = if (currentRoute == "live_tv") Color.Red else Color.Gray) },
+                                        label = { Text("Live TV", color = if (currentRoute == "live_tv") Color.Red else Color.Gray) }
+                                    )
                                 }
-                            )
+                            }
                         }
-
-                        composable("details/{movieId}") { backStackEntry ->
-                            val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
-                            val movie = viewModel.uiState.value.allMovies.find { it.id == movieId }
+                    ) { innerPadding ->
+                        NavHost(
+                            navController = navController, 
+                            startDestination = "movies",
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
                             
-                            if (movie != null) {
-                                DetailsScreen(
-                                    movie = movie,
-                                    onBackClick = { navController.popBackStack() },
-                                    onWatchClick = {
-                                        navController.navigate("player/${android.net.Uri.encode(movie.videoUrl)}")
+                            // 1. Movies Route
+                            composable("movies") {
+                                MovieGridScreen(
+                                    viewModel = viewModel,
+                                    onMovieClick = { movieId ->
+                                        navController.navigate("details/$movieId")
                                     }
                                 )
                             }
-                        }
 
-                        composable("player/{videoUrl}") { backStackEntry ->
-                            val videoUrl = backStackEntry.arguments?.getString("videoUrl")
-                            if (videoUrl != null) {
-                                VideoPlayerScreen(videoUrl = videoUrl)
+                            // 2. Live TV Route
+                            composable("live_tv") {
+                                LiveTvScreen(
+                                    onChannelClick = { videoUrl ->
+                                        navController.navigate("player/${android.net.Uri.encode(videoUrl)}")
+                                    }
+                                )
+                            }
+
+                            // 3. Details Route
+                            composable("details/{movieId}") { backStackEntry ->
+                                val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
+                                val movie = viewModel.uiState.value.allMovies.find { it.id == movieId }
+                                
+                                if (movie != null) {
+                                    DetailsScreen(
+                                        movie = movie,
+                                        onBackClick = { navController.popBackStack() },
+                                        onWatchClick = {
+                                            navController.navigate("player/${android.net.Uri.encode(movie.videoUrl)}")
+                                        }
+                                    )
+                                }
+                            }
+
+                            // 4. Video Player Route
+                            composable("player/{videoUrl}") { backStackEntry ->
+                                val videoUrl = backStackEntry.arguments?.getString("videoUrl")
+                                if (videoUrl != null) {
+                                    VideoPlayerScreen(videoUrl = videoUrl)
+                                }
                             }
                         }
                     }
@@ -175,7 +228,6 @@ fun MovieCard(
                 modifier = Modifier.fillMaxSize()
             )
             
-            // Heart Icon in the top right corner
             IconButton(
                 onClick = onFavoriteClick,
                 modifier = Modifier
