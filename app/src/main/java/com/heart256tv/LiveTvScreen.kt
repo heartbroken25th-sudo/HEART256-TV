@@ -23,7 +23,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -52,16 +51,14 @@ fun LiveTvScreen(
     error: String?,
     onChannelClick: (String) -> Unit
 ) {
-    // State for the search bar
     var searchQuery by remember { mutableStateOf("") }
     
-    // Filter channels based on search
     val filteredChannels = channels.filter { 
         it.name.contains(searchQuery, ignoreCase = true) 
     }
 
     Scaffold(
-        containerColor = Color(0xFF121212) // Dark background from your screenshot
+        containerColor = Color(0xFF121212)
     ) { paddingValues ->
         
         Column(
@@ -71,7 +68,6 @@ fun LiveTvScreen(
                 .padding(horizontal = 16.dp)
         ) {
             
-            // Top Title
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Live TV",
@@ -82,7 +78,6 @@ fun LiveTvScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Search Bar
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -90,7 +85,7 @@ fun LiveTvScreen(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp)), // Rounded search bar
+                    .clip(RoundedCornerShape(12.dp)), 
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 colors = TextFieldDefaults.colors(
@@ -114,13 +109,11 @@ fun LiveTvScreen(
                     Text(text = error, color = Color.Red)
                 }
             } else {
-                // The Vertical List of Channels
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(filteredChannels) { channel ->
                         ChannelListItem(channel, onClick = { onChannelClick(channel.url) })
-                        // Thin divider line
                         HorizontalDivider(
                             thickness = 1.dp,
                             color = Color(0xFF333333),
@@ -142,8 +135,6 @@ fun ChannelListItem(channel: TvChannel, onClick: () -> Unit) {
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        
-        // Channel Logo
         AsyncImage(
             model = channel.logo,
             contentDescription = channel.name,
@@ -156,7 +147,6 @@ fun ChannelListItem(channel: TvChannel, onClick: () -> Unit) {
         
         Spacer(modifier = Modifier.width(16.dp))
         
-        // Channel Name and Program Info
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = channel.name,
@@ -172,16 +162,14 @@ fun ChannelListItem(channel: TvChannel, onClick: () -> Unit) {
             )
         }
         
-        // Time Range
         Text(
             text = channel.timeRange,
-            color = Color(0xFFFFC107), // Gold/Yellow color from screenshot
+            color = Color(0xFFFFC107), 
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(end = 8.dp)
         )
         
-        // Arrow Icon
         Icon(
             imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = "Play",
