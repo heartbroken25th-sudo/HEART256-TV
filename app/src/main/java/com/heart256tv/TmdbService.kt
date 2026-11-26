@@ -22,7 +22,7 @@ data class TmdbMovie(
 interface TmdbApi {
     @GET("movie/popular")
     suspend fun getPopularMovies(
-        // 👇👇 CHANGE "1234" TO YOUR REAL API KEY LATER 👇👇
+        // 👇👇 PASTE YOUR REAL API KEY BETWEEN THE QUOTES HERE 👇👇
         @Query("api_key") apiKey: String = "7d9881e42ce429812d3de037562886a2", 
         @Query("language") language: String = "en-US",
         @Query("page") page: Int = 1
