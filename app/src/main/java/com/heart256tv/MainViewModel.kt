@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.update
 data class MainUiState(
     val allMovies: List<Movie> = emptyList(),
     val searchQuery: String = "",
-    val filteredMovies: List<Movie> = emptyList()
+    val filteredMovies: List<Movie> = emptyList(),
+    val favoriteIds: Set<Int> = emptySet() // NEW: Holds the IDs of favorited movies
 )
 
 class MainViewModel : ViewModel() {
     
-    // I added real test video links to each movie!
     private val dummyMovies = listOf(
         Movie(1, "Stranger Things", "2016", "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8Jt6pBQ2d.jpg", videoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"),
         Movie(2, "The Witcher", "2019", "https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLcQ1vCZy5f5A.jpg", videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"),
@@ -49,6 +49,18 @@ class MainViewModel : ViewModel() {
                 searchQuery = query,
                 filteredMovies = filtered
             )
+        }
+    }
+
+    // NEW: Function to add or remove a movie from favorites
+    fun toggleFavorite(movieId: Int) {
+        _uiState.update { currentState ->
+            val newFavorites = if (currentState.favoriteIds.contains(movieId)) {
+                currentState.favoriteIds - movieId // Remove it
+            } else {
+                currentState.favoriteIds + movieId // Add it
+            }
+            currentState.copy(favoriteIds = newFavorites)
         }
     }
 }
