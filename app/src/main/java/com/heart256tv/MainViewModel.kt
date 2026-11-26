@@ -4,15 +4,17 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-// Update the UI State to hold a list of movies
+// Update the UI State to hold the search query and the filtered list
 data class MainUiState(
-    val movies: List<Movie> = emptyList()
+    val allMovies: List<Movie> = emptyList(),
+    val searchQuery: String = "",
+    val filteredMovies: List<Movie> = emptyList()
 )
 
 class MainViewModel : ViewModel() {
     
-    // Fresh, verified working image URLs
     private val dummyMovies = listOf(
         Movie(1, "Stranger Things", "2016", "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8Jt6pBQ2d.jpg"),
         Movie(2, "The Witcher", "2019", "https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLcQ1vCZy5f5A.jpg"),
@@ -26,6 +28,29 @@ class MainViewModel : ViewModel() {
         Movie(10, "Ozark", "2017", "https://image.tmdb.org/t/p/w500/pCGyPVrI9Fzw1xlWLK1NfXgM8Qy.jpg")
     )
 
-    private val _uiState = MutableStateFlow(MainUiState(movies = dummyMovies))
+    // Initialize the state with all movies
+    private val _uiState = MutableStateFlow(
+        MainUiState(
+            allMovies = dummyMovies,
+            filteredMovies = dummyMovies
+        )
+    )
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
+
+    // Function to handle typing in the search bar
+    fun onSearchQueryChange(query: String) {
+        _uiState.update { currentState ->
+            val filtered = if (query.isBlank()) {
+                currentState.allMovies
+            } else {
+                currentState.allMovies.filter { 
+                    it.title.contains(query, ignoreCase = true) 
+                }
+            }
+            currentState.copy(
+                searchQuery = query,
+                filteredMovies = filtered
+            )
+        }
+    }
 }
