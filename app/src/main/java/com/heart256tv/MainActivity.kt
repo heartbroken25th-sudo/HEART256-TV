@@ -1,9 +1,12 @@
 package com.heart256tv
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -30,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,9 +77,9 @@ fun MovieGridScreen(viewModel: MainViewModel) {
     ) { paddingValues ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues) // Fixes the top bar overlap
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -89,17 +93,21 @@ fun MovieGridScreen(viewModel: MainViewModel) {
 
 @Composable
 fun MovieCard(movie: Movie) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.7f),
+            .aspectRatio(0.7f)
+            .clickable {
+                Toast.makeText(context, "You tapped ${movie.title}", Toast.LENGTH_SHORT).show()
+            },
         colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            // Here is where we use Coil to load the image from the internet
             AsyncImage(
                 model = movie.posterUrl,
                 contentDescription = movie.title,
@@ -107,7 +115,7 @@ fun MovieCard(movie: Movie) {
                 modifier = Modifier.fillMaxSize()
             )
             
-            // A dark background for the text at the bottom so it's readable
+            // Added a black background here so the white text is always readable
             Text(
                 text = movie.title,
                 color = Color.White,
@@ -116,6 +124,7 @@ fun MovieCard(movie: Movie) {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.7f))
                     .padding(8.dp)
             )
         }
