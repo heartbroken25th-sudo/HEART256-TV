@@ -12,9 +12,9 @@ data class MainUiState(
 
 class MainViewModel : ViewModel() {
     
-    // Dummy list with real image URLs
+    // Dummy list with fresh, working image URLs
     private val dummyMovies = listOf(
-        Movie(1, "Stranger Things", "2016", "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8Jt6pBQ2d.jpg"),
+        Movie(1, "Stranger Things", "2016", "https://image.tmdb.org/t/p/w500/x2LSRK2Cm7MZhjluni1msVJ3wDF.jpg"),
         Movie(2, "The Witcher", "2019", "https://image.tmdb.org/t/p/w500/7vjaCdMw15FEbXyLcQ1vCZy5f5A.jpg"),
         Movie(3, "Squid Game", "2021", "https://image.tmdb.org/t/p/w500/dDlEmu3EZ0Pgg93K2SVNLCjCSvE.jpg"),
         Movie(4, "Wednesday", "2022", "https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg"),
