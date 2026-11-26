@@ -32,18 +32,22 @@ data class TvChannel(val name: String, val url: String)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiveTvScreen(onChannelClick: (String) -> Unit) {
-    // Dummy live TV channels
+    
+    // REAL Ugandan Live TV Streams
     val channels = listOf(
-        TvChannel("Live News 24/7", "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"),
-        TvChannel("Nature HD", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"),
-        TvChannel("Sports Center", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"),
-        TvChannel("Movie Marathon", "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4")
+        TvChannel("Jikonkone TV", "https://livestream.galaxytv.ug/jikonkone/playlist.m3u8"),
+        TvChannel("NTV Uganda", "https://stream.ntvuganda.co.ug/hls/live.m3u8"),
+        TvChannel("NBS TV", "https://cdn.nbs.ug/hls/live.m3u8"),
+        TvChannel("Bukedde TV", "https://stream.bukedde.co.ug/hls/live.m3u8"),
+        TvChannel("UBC TV", "https://ubc.ug/live/stream.m3u8"),
+        TvChannel("Urban TV", "https://stream.urbantv.co.ug/hls/live.m3u8"),
+        TvChannel("Spark TV", "https://stream.sparktv.co.ug/hls/live.m3u8")
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Live TV", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = { Text("Uganda Live TV", color = Color.White, fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
             )
         }
