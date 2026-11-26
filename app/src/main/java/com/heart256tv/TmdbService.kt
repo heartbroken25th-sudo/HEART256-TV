@@ -9,7 +9,8 @@ data class TvChannel(
     val url: String,
     val logo: String = "", 
     val programTitle: String = "Live Stream", 
-    val timeRange: String = "LIVE"
+    val timeRange: String = "LIVE",
+    val category: String = "📺 Entertainment" // NEW: Added category
 )
 
 interface GithubApi {
