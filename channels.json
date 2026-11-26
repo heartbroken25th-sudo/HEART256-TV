@@ -8,12 +8,12 @@
     "category": "🎵 Music"
   },
   {
-    "name": "NTV Uganda",
-    "url": "https://uvotv-aniview.global.ssl.fastly.net/hls/live/2119694/ntvuganda/playlist.m3u8",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/8/89/Logo_of_NTV_Uganda.png",
-    "programTitle": "News at 9",
+    "name": "BBS Terefayina",
+    "url": "https://bbstv.ug/hls/ch01/index.m3u8",
+    "logo": "https://bbstv.ug/wp-content/uploads/2023/08/bbs-logo.png",
+    "programTitle": "Buganda News & Entertainment",
     "timeRange": "LIVE",
-    "category": "📰 News"
+    "category": "📺 Entertainment"
   },
   {
     "name": "NBS TV",
