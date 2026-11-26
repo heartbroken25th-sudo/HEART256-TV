@@ -2,98 +2,190 @@ package com.heart256tv
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-// A simple data class for our TV channels
-data class TvChannel(val name: String, val url: String)
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LiveTvScreen(onChannelClick: (String) -> Unit) {
+fun LiveTvScreen(
+    channels: List<TvChannel>,
+    isLoading: Boolean,
+    error: String?,
+    onChannelClick: (String) -> Unit
+) {
+    // State for the search bar
+    var searchQuery by remember { mutableStateOf("") }
     
-    // REAL Ugandan Live TV Streams
-    val channels = listOf(
-        TvChannel("Jikonkone TV", "https://livestream.galaxytv.ug/jikonkone/playlist.m3u8"),
-        TvChannel("NTV Uganda", "https://stream.ntvuganda.co.ug/hls/live.m3u8"),
-        TvChannel("NBS TV", "https://cdn.nbs.ug/hls/live.m3u8"),
-        TvChannel("Bukedde TV", "https://stream.bukedde.co.ug/hls/live.m3u8"),
-        TvChannel("UBC TV", "https://ubc.ug/live/stream.m3u8"),
-        TvChannel("Urban TV", "https://stream.urbantv.co.ug/hls/live.m3u8"),
-        TvChannel("Spark TV", "https://stream.sparktv.co.ug/hls/live.m3u8")
-    )
+    // Filter channels based on search
+    val filteredChannels = channels.filter { 
+        it.name.contains(searchQuery, ignoreCase = true) 
+    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Uganda Live TV", color = Color.White, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
-            )
-        }
+        containerColor = Color(0xFF121212) // Dark background from your screenshot
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 16.dp)
         ) {
-            items(channels) { channel ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1.5f) // Wide rectangles for TV channels
-                        .clickable { onChannelClick(channel.url) },
-                    colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+            
+            // Top Title
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Live TV",
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Search Bar
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search channels...", color = Color.Gray) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)), // Rounded search bar
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFF282828),
+                    unfocusedContainerColor = Color(0xFF282828),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color.Red)
+                }
+            } else if (error != null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = error, color = Color.Red)
+                }
+            } else {
+                // The Vertical List of Channels
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = channel.name,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(8.dp)
+                    items(filteredChannels) { channel ->
+                        ChannelListItem(channel, onClick = { onChannelClick(channel.url) })
+                        // Thin divider line
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = Color(0xFF333333),
+                            modifier = Modifier.padding(vertical = 4.dp)
                         )
-                        
-                        // LIVE indicator
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                                .background(Color.Red)
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
-                        ) {
-                            Text(text = "LIVE", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ChannelListItem(channel: TvChannel, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        
+        // Channel Logo
+        AsyncImage(
+            model = channel.logo,
+            contentDescription = channel.name,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.DarkGray)
+        )
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        // Channel Name and Program Info
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = channel.name,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = channel.programTitle,
+                color = Color.Gray,
+                fontSize = 13.sp
+            )
+        }
+        
+        // Time Range
+        Text(
+            text = channel.timeRange,
+            color = Color(0xFFFFC107), // Gold/Yellow color from screenshot
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        
+        // Arrow Icon
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowRight,
+            contentDescription = "Play",
+            tint = Color.Gray
+        )
     }
 }
