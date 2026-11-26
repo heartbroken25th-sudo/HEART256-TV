@@ -75,15 +75,13 @@ class MainActivity : ComponentActivity() {
                                     movie = movie,
                                     onBackClick = { navController.popBackStack() },
                                     onWatchClick = {
-                                        // Navigate to the player screen with a sample video URL
-                                        val videoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
-                                        navController.navigate("player/${android.net.Uri.encode(videoUrl)}")
+                                        // Here is the fix: using movie.videoUrl instead of a hardcoded link
+                                        navController.navigate("player/${android.net.Uri.encode(movie.videoUrl)}")
                                     }
                                 )
                             }
                         }
 
-                        // The New Video Player Route
                         composable("player/{videoUrl}") { backStackEntry ->
                             val videoUrl = backStackEntry.arguments?.getString("videoUrl")
                             if (videoUrl != null) {
