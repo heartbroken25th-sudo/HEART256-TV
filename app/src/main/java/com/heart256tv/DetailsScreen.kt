@@ -1,6 +1,5 @@
 package com.heart256tv
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,9 +31,11 @@ import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsScreen(movie: Movie, onBackClick: () -> Unit) {
-    val context = LocalContext.current
-
+fun DetailsScreen(
+    movie: Movie, 
+    onBackClick: () -> Unit,
+    onWatchClick: () -> Unit // Added a new click handler for the button
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,7 +60,6 @@ fun DetailsScreen(movie: Movie, onBackClick: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Large Movie Poster
             AsyncImage(
                 model = movie.posterUrl,
                 contentDescription = movie.title,
@@ -72,7 +71,6 @@ fun DetailsScreen(movie: Movie, onBackClick: () -> Unit) {
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Movie Title
             Text(
                 text = movie.title,
                 color = Color.White,
@@ -83,7 +81,6 @@ fun DetailsScreen(movie: Movie, onBackClick: () -> Unit) {
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Release Year
             Text(
                 text = "Released: ${movie.year}",
                 color = Color.LightGray,
@@ -93,11 +90,8 @@ fun DetailsScreen(movie: Movie, onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // The Big Red "Watch Now" Button
             Button(
-                onClick = { 
-                    Toast.makeText(context, "Playing ${movie.title}...", Toast.LENGTH_SHORT).show() 
-                },
+                onClick = onWatchClick, // Trigger the navigation callback
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,7 +103,6 @@ fun DetailsScreen(movie: Movie, onBackClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // The Description
             Text(
                 text = "Description",
                 color = Color.White,
