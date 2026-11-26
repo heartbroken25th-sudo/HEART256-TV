@@ -29,12 +29,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                // This downloads the channels.json from your GitHub
                 val fetchedChannels = GithubClient.api.getLiveChannels()
                 _uiState.update { it.copy(channels = fetchedChannels, isLoading = false) }
             } catch (e: Exception) {
                 Log.e("GITHUB_ERROR", "Failed to fetch channels: ${e.message}")
-                _uiState.update { it.copy(isLoading = false, error = "Failed to load channels. Check internet.") }
+                _uiState.update { it.copy(isLoading = false, error = "Failed to load channels.") }
             }
         }
     }
