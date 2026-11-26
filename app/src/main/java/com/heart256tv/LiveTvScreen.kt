@@ -49,12 +49,16 @@ fun LiveTvScreen(
     channels: List<TvChannel>,
     isLoading: Boolean,
     error: String?,
+    selectedCategory: String, // NEW PARAMETER
     onChannelClick: (String) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     
-    val filteredChannels = channels.filter { 
-        it.name.contains(searchQuery, ignoreCase = true) 
+    // Filter by BOTH category and search query!
+    val filteredChannels = channels.filter { channel ->
+        val matchesCategory = selectedCategory == "All" || channel.category == selectedCategory
+        val matchesSearch = channel.name.contains(searchQuery, ignoreCase = true)
+        matchesCategory && matchesSearch
     }
 
     Scaffold(
@@ -70,7 +74,7 @@ fun LiveTvScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Live TV",
+                text = if (selectedCategory == "All") "Live TV" else selectedCategory,
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
@@ -107,6 +111,10 @@ fun LiveTvScreen(
             } else if (error != null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(text = error, color = Color.Red)
+                }
+            } else if (filteredChannels.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "No channels found in this category.", color = Color.Gray)
                 }
             } else {
                 LazyColumn(
