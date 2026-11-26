@@ -79,13 +79,11 @@ class MainActivity : ComponentActivity() {
                             composable("home") {
                                 HomeScreen(
                                     onCategoryClick = { category ->
-                                        // Navigate to Live TV with the chosen category
                                         navController.navigate("live_tv/$category")
                                     }
                                 )
                             }
 
-                            // Accepts a category parameter
                             composable(
                                 route = "live_tv/{category}",
                                 arguments = listOf(navArgument("category") { type = NavType.StringType })
@@ -97,7 +95,7 @@ class MainActivity : ComponentActivity() {
                                     channels = uiState.channels,
                                     isLoading = uiState.isLoading,
                                     error = uiState.error,
-                                    selectedCategory = category, // Pass the category to filter!
+                                    selectedCategory = category,
                                     onChannelClick = { videoUrl ->
                                         navController.navigate("player/${android.net.Uri.encode(videoUrl)}")
                                     }
@@ -105,7 +103,8 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable("settings") {
-                                SettingsScreen()
+                                // Connects the button to the ViewModel's fetch function!
+                                SettingsScreen(onRefreshClick = { viewModel.fetchChannels() })
                             }
 
                             composable("player/{videoUrl}") { backStackEntry ->
