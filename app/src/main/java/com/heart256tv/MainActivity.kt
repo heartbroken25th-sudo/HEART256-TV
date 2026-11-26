@@ -16,9 +16,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -75,7 +80,6 @@ class MainActivity : ComponentActivity() {
                                     movie = movie,
                                     onBackClick = { navController.popBackStack() },
                                     onWatchClick = {
-                                        // Here is the fix: using movie.videoUrl instead of a hardcoded link
                                         navController.navigate("player/${android.net.Uri.encode(movie.videoUrl)}")
                                     }
                                 )
@@ -121,9 +125,7 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
                         )
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
             )
         }
     ) { paddingValues ->
@@ -137,14 +139,24 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(uiState.filteredMovies) { movie ->
-                MovieCard(movie = movie, onClick = { onMovieClick(movie.id) })
+                MovieCard(
+                    movie = movie, 
+                    isFavorite = uiState.favoriteIds.contains(movie.id),
+                    onClick = { onMovieClick(movie.id) },
+                    onFavoriteClick = { viewModel.toggleFavorite(movie.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun MovieCard(movie: Movie, onClick: () -> Unit) {
+fun MovieCard(
+    movie: Movie, 
+    isFavorite: Boolean, 
+    onClick: () -> Unit, 
+    onFavoriteClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -162,6 +174,20 @@ fun MovieCard(movie: Movie, onClick: () -> Unit) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
+            
+            // Heart Icon in the top right corner
+            IconButton(
+                onClick = onFavoriteClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color.Red else Color.White
+                )
+            }
             
             Text(
                 text = movie.title,
