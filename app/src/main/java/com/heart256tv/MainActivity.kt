@@ -1,7 +1,6 @@
 package com.heart256tv
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -33,10 +32,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 
 class MainActivity : ComponentActivity() {
@@ -47,7 +48,37 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    MovieGridScreen(viewModel = viewModel)
+                    
+                    // 1. Set up the Navigation Controller
+                    val navController = rememberNavController()
+
+                    // 2. Define the Routes
+                    NavHost(navController = navController, startDestination = "home") {
+                        
+                        // The Home Screen (Netflix Grid)
+                        composable("home") {
+                            MovieGridScreen(
+                                viewModel = viewModel,
+                                onMovieClick = { movieId ->
+                                    // Navigate to details and pass the movie ID
+                                    navController.navigate("details/$movieId")
+                                }
+                            )
+                        }
+
+                        // The Details Screen
+                        composable("details/{movieId}") { backStackEntry ->
+                            val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
+                            val movie = viewModel.uiState.value.movies.find { it.id == movieId }
+                            
+                            if (movie != null) {
+                                DetailsScreen(
+                                    movie = movie,
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -56,7 +87,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieGridScreen(viewModel: MainViewModel) {
+fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -79,29 +110,25 @@ fun MovieGridScreen(viewModel: MainViewModel) {
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // Fixes the top bar overlap
+                .padding(paddingValues) 
                 .padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(uiState.movies) { movie ->
-                MovieCard(movie)
+                MovieCard(movie = movie, onClick = { onMovieClick(movie.id) })
             }
         }
     }
 }
 
 @Composable
-fun MovieCard(movie: Movie) {
-    val context = LocalContext.current
-
+fun MovieCard(movie: Movie, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(0.7f)
-            .clickable {
-                Toast.makeText(context, "You tapped ${movie.title}", Toast.LENGTH_SHORT).show()
-            },
+            .clickable { onClick() }, // This triggers the navigation!
         colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
     ) {
         Box(
@@ -115,7 +142,6 @@ fun MovieCard(movie: Movie) {
                 modifier = Modifier.fillMaxSize()
             )
             
-            // Added a black background here so the white text is always readable
             Text(
                 text = movie.title,
                 color = Color.White,
