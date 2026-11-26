@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,26 +70,23 @@ class MainActivity : ComponentActivity() {
 
                     Scaffold(
                         bottomBar = {
-                            // Only show the bottom bar on the main screens
-                            if (currentRoute == "movies" || currentRoute == "live_tv") {
+                            if (currentRoute == "movies" || currentRoute == "live_tv" || currentRoute == "favorites") {
                                 NavigationBar(containerColor = Color.Black) {
                                     NavigationBarItem(
                                         selected = currentRoute == "movies",
-                                        onClick = { 
-                                            navController.navigate("movies") {
-                                                popUpTo("movies") { inclusive = true }
-                                            }
-                                        },
+                                        onClick = { navController.navigate("movies") { popUpTo("movies") { inclusive = true } } },
                                         icon = { Icon(Icons.Default.Home, contentDescription = "Movies", tint = if (currentRoute == "movies") Color.Red else Color.Gray) },
                                         label = { Text("Movies", color = if (currentRoute == "movies") Color.Red else Color.Gray) }
                                     )
                                     NavigationBarItem(
+                                        selected = currentRoute == "favorites",
+                                        onClick = { navController.navigate("favorites") { popUpTo("movies") { inclusive = true } } },
+                                        icon = { Icon(Icons.Default.Favorite, contentDescription = "Favorites", tint = if (currentRoute == "favorites") Color.Red else Color.Gray) },
+                                        label = { Text("Favorites", color = if (currentRoute == "favorites") Color.Red else Color.Gray) }
+                                    )
+                                    NavigationBarItem(
                                         selected = currentRoute == "live_tv",
-                                        onClick = { 
-                                            navController.navigate("live_tv") {
-                                                popUpTo("movies") { inclusive = true }
-                                            }
-                                        },
+                                        onClick = { navController.navigate("live_tv") { popUpTo("movies") { inclusive = true } } },
                                         icon = { Icon(Icons.Default.PlayArrow, contentDescription = "Live TV", tint = if (currentRoute == "live_tv") Color.Red else Color.Gray) },
                                         label = { Text("Live TV", color = if (currentRoute == "live_tv") Color.Red else Color.Gray) }
                                     )
@@ -102,17 +100,49 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             
-                            // 1. Movies Route
                             composable("movies") {
                                 MovieGridScreen(
                                     viewModel = viewModel,
-                                    onMovieClick = { movieId ->
-                                        navController.navigate("details/$movieId")
-                                    }
+                                    onMovieClick = { movieId -> navController.navigate("details/$movieId") }
                                 )
                             }
 
-                            // 2. Live TV Route
+                            composable("favorites") {
+                                val uiState by viewModel.uiState.collectAsState()
+                                val favoriteMovies = uiState.allMovies.filter { uiState.favoriteIds.contains(it.id) }
+                                
+                                Scaffold(
+                                    topBar = {
+                                        TopAppBar(
+                                            title = { Text("My Favorites", color = Color.White, fontWeight = FontWeight.Bold) },
+                                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
+                                        )
+                                    }
+                                ) { padding ->
+                                    if (favoriteMovies.isEmpty()) {
+                                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                            Text("No favorites yet. Tap a heart!", color = Color.Gray)
+                                        }
+                                    } else {
+                                        LazyVerticalGrid(
+                                            columns = GridCells.Fixed(2),
+                                            modifier = Modifier.fillMaxSize().padding(padding).padding(8.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            items(favoriteMovies) { movie ->
+                                                MovieCard(
+                                                    movie = movie, 
+                                                    isFavorite = true,
+                                                    onClick = { navController.navigate("details/${movie.id}") },
+                                                    onFavoriteClick = { viewModel.toggleFavorite(movie.id) }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             composable("live_tv") {
                                 LiveTvScreen(
                                     onChannelClick = { videoUrl ->
@@ -121,7 +151,6 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            // 3. Details Route
                             composable("details/{movieId}") { backStackEntry ->
                                 val movieId = backStackEntry.arguments?.getString("movieId")?.toIntOrNull()
                                 val movie = viewModel.uiState.value.allMovies.find { it.id == movieId }
@@ -130,14 +159,11 @@ class MainActivity : ComponentActivity() {
                                     DetailsScreen(
                                         movie = movie,
                                         onBackClick = { navController.popBackStack() },
-                                        onWatchClick = {
-                                            navController.navigate("player/${android.net.Uri.encode(movie.videoUrl)}")
-                                        }
+                                        onWatchClick = { navController.navigate("player/${android.net.Uri.encode(movie.videoUrl)}") }
                                     )
                                 }
                             }
 
-                            // 4. Video Player Route
                             composable("player/{videoUrl}") { backStackEntry ->
                                 val videoUrl = backStackEntry.arguments?.getString("videoUrl")
                                 if (videoUrl != null) {
@@ -161,43 +187,59 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
         topBar = {
             TopAppBar(
                 title = { 
-                    TextField(
-                        value = uiState.searchQuery,
-                        onValueChange = { viewModel.onSearchQueryChange(it) },
-                        placeholder = { Text("Search movies...", color = Color.Gray) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Black,
-                            unfocusedContainerColor = Color.Black,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        )
-                    )
+                    // BROUGHT BACK THE APP NAME HERE!
+                    Text(
+                        text = "Heart256 TV", 
+                        fontWeight = FontWeight.Bold, 
+                        color = Color.Red,
+                        fontSize = 24.sp
+                    ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black)
             )
         }
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) 
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(paddingValues)
         ) {
-            items(uiState.filteredMovies) { movie ->
-                MovieCard(
-                    movie = movie, 
-                    isFavorite = uiState.favoriteIds.contains(movie.id),
-                    onClick = { onMovieClick(movie.id) },
-                    onFavoriteClick = { viewModel.toggleFavorite(movie.id) }
+            // The Search Bar is now just below the title
+            TextField(
+                value = uiState.searchQuery,
+                onValueChange = { viewModel.onSearchQueryChange(it) },
+                placeholder = { Text("Search movies...", color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.DarkGray,
+                    unfocusedContainerColor = Color.DarkGray,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
                 )
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(uiState.filteredMovies) { movie ->
+                    MovieCard(
+                        movie = movie, 
+                        isFavorite = uiState.favoriteIds.contains(movie.id),
+                        onClick = { onMovieClick(movie.id) },
+                        onFavoriteClick = { viewModel.toggleFavorite(movie.id) }
+                    )
+                }
             }
         }
     }
