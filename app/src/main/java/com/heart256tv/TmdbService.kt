@@ -6,7 +6,10 @@ import retrofit2.http.GET
 
 data class TvChannel(
     val name: String,
-    val url: String
+    val url: String,
+    val logo: String = "", 
+    val programTitle: String = "Live Stream", 
+    val timeRange: String = "LIVE"
 )
 
 interface GithubApi {
@@ -15,7 +18,6 @@ interface GithubApi {
 }
 
 object GithubClient {
-    // IMPORTANT: Make sure your GitHub username is correct here!
     private const val GITHUB_BASE_URL = "https://raw.githubusercontent.com/heartbroken25th-sudo/HEART256-TV/main/"
     
     val api: GithubApi by lazy {
