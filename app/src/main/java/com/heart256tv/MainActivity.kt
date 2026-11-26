@@ -73,8 +73,21 @@ class MainActivity : ComponentActivity() {
                             if (movie != null) {
                                 DetailsScreen(
                                     movie = movie,
-                                    onBackClick = { navController.popBackStack() }
+                                    onBackClick = { navController.popBackStack() },
+                                    onWatchClick = {
+                                        // Navigate to the player screen with a sample video URL
+                                        val videoUrl = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+                                        navController.navigate("player/${android.net.Uri.encode(videoUrl)}")
+                                    }
                                 )
+                            }
+                        }
+
+                        // The New Video Player Route
+                        composable("player/{videoUrl}") { backStackEntry ->
+                            val videoUrl = backStackEntry.arguments?.getString("videoUrl")
+                            if (videoUrl != null) {
+                                VideoPlayerScreen(videoUrl = videoUrl)
                             }
                         }
                     }
@@ -93,7 +106,6 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
         topBar = {
             TopAppBar(
                 title = { 
-                    // Replaced the simple text with a Search Bar
                     TextField(
                         value = uiState.searchQuery,
                         onValueChange = { viewModel.onSearchQueryChange(it) },
@@ -126,7 +138,6 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Notice we are now using uiState.filteredMovies instead of uiState.movies
             items(uiState.filteredMovies) { movie ->
                 MovieCard(movie = movie, onClick = { onMovieClick(movie.id) })
             }
