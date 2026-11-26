@@ -58,6 +58,7 @@ import coil.compose.AsyncImage
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
 
+    @OptIn(ExperimentalMaterial3Api::class) // <--- THIS FIXES THE ERROR
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -187,7 +188,6 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
         topBar = {
             TopAppBar(
                 title = { 
-                    // BROUGHT BACK THE APP NAME HERE!
                     Text(
                         text = "Heart256 TV", 
                         fontWeight = FontWeight.Bold, 
@@ -204,7 +204,6 @@ fun MovieGridScreen(viewModel: MainViewModel, onMovieClick: (Int) -> Unit) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // The Search Bar is now just below the title
             TextField(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
